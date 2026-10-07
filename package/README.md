@@ -17,6 +17,7 @@ Client-side inventory mod for Valheim 1.0.x. Only you need it. Servers and other
 - **Cheat flag cleaner:** removes Valheim's spreading "summoned through cheating means" flag. It is cleared automatically from your inventory. `Ctrl+F9` also cleans buildings, workbenches, cooking stations, fermenters and chests within 30 m. Achievements are already disabled in a modded game, so the flag has no other effect.
 - **Auto repair:** walk up to a workbench, forge or other station (5 m) and everything it can repair is repaired.
 - **Recipe search:** a search field above the crafting list. Type a name, or `!ingredient` (e.g. `!iron`) to find recipes that use it.
+- **Pinned recipes:** right-click a recipe in the crafting list to pin it. It is shown on the right side with how much of each ingredient you carry, and a check mark when you have enough. It disappears once you have crafted it. Remove it yourself with the X (when the inventory is open) or clear all with `Ctrl+F11`.
 - **Grave arrow:** the HUD points to your grave with the distance. The grave and Valheim's death pin are removed once you have emptied it.
 - **Portal warning:** the HUD shows how many items you carry that can't go through a portal.
 - **HUD:** quick-slot bar with icons, stack sizes and hotkeys, carry weight, and a low-durability warning.

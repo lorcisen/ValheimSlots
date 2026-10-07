@@ -20,3 +20,6 @@
 - Portal warning: HUD shows how many carried items can't go through a portal (with the game's no-portal icon).
 - Auto repair: walking up to a usable workbench/forge/etc. repairs everything it can (same rules as the repair button).
 - Recipe search: search field above the recipe list; start with ! to search by ingredient.
+
+## 1.0.5
+- Pinned recipes: right-click a recipe in the crafting list to pin it. Pinned recipes are listed on the right side with ingredient counts from your inventory (check mark when you have enough). They are removed automatically after crafting, with the X (inventory open) or with Ctrl+F11.

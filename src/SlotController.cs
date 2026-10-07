@@ -36,6 +36,7 @@ namespace ValheimSlots
             AutoRepair.Tick(player);
             GraveTracker.Tick(player);
             StatusHud.Update(player);
+            PinnedPanel.Update(player);
         }
 
         private static void HandleHotkeys(Player player)
@@ -44,6 +45,8 @@ namespace ValheimSlots
                 WeaponSets.Swap(player);
             if (IsDown(Plugin.ClearCheatedKey.Value))
                 CheatCleaner.ClearAround(player);
+            if (IsDown(Plugin.ClearPinsKey.Value))
+                PinnedRecipes.ClearAll();
 
             for (int i = 0; i < 3; i++)
             {

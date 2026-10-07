@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
@@ -17,7 +17,7 @@ namespace ValheimSlots
         public const string Guid = "lorcisen.valheimslots";
         public const string Name = "ValheimSlots";
         private const string OldGuid = "pelle.valheimslots";
-        public const string Version = "1.0.4";
+        public const string Version = "1.0.5";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance;
@@ -53,6 +53,12 @@ namespace ValheimSlots
         internal static ConfigEntry<bool> CraftSearch;
         internal static ConfigEntry<bool> ShowGraveArrow;
         internal static ConfigEntry<bool> ShowPortalWarning;
+
+        // Pinned recipes
+        internal static ConfigEntry<bool> PinnedEnabled;
+        internal static ConfigEntry<Vector2> PinnedPosition;
+        internal static ConfigEntry<int> PinnedMaxShown;
+        internal static ConfigEntry<KeyboardShortcut> ClearPinsKey;
 
         // HUD
         internal static ConfigEntry<bool> ShowHud;
@@ -170,6 +176,15 @@ namespace ValheimSlots
                 "Visa en pil och avståndet till din grav. Grav- och kartmarkeringen tas bort när graven är tömd.");
             ShowPortalWarning = Config.Bind("7 - Convenience", "Portal warning", true,
                 "Visa hur många föremål du bär som inte får tas genom en portal (malm, metall m.m.).");
+
+            PinnedEnabled = Config.Bind("8 - Pinned recipes", "Enabled", true,
+                "Högerklicka på ett recept i tillverkningslistan för att pinna det. Pinnade recept visas till höger med ingredienserna du behöver.");
+            PinnedPosition = Config.Bind("8 - Pinned recipes", "Position", new Vector2(-20f, 120f),
+                "Listans övre högra hörn, relativt skärmens högra kant (mitten i höjdled). Negativt X = in från kanten, positivt Y = uppåt.");
+            PinnedMaxShown = Config.Bind("8 - Pinned recipes", "Max shown", 5,
+                new ConfigDescription("Hur många pinnade recept som visas samtidigt.", new AcceptableValueRange<int>(1, 15)));
+            ClearPinsKey = Config.Bind("8 - Pinned recipes", "Clear all key", new KeyboardShortcut(KeyCode.F11, KeyCode.LeftControl),
+                "Ta bort alla pinnade recept.");
 
             ShowHud = Config.Bind("5 - HUD", "Show quick slot HUD", true, "Visa mat-, mjÃ¶d- och ammoplatserna pÃ¥ skÃ¤rmen.");
             HudPosition = Config.Bind("5 - HUD", "HUD position", new Vector2(0f, 230f),

@@ -8,8 +8,39 @@ namespace ValheimSlots
         private const int Size = 64;
         private static Sprite _arrow;
 
+        private static Sprite _pin;
+
         /// <summary>An arrow pointing up (rotate the Image to aim it).</summary>
         public static Sprite Arrow => _arrow != null ? _arrow : (_arrow = CreateArrow());
+
+        /// <summary>A round "pin head": white disc with a black ring.</summary>
+        public static Sprite Pin => _pin != null ? _pin : (_pin = CreatePin());
+
+        private static Sprite CreatePin()
+        {
+            var tex = new Texture2D(Size, Size, TextureFormat.RGBA32, false)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                name = "ValheimSlotsPin",
+            };
+            var center = new Vector2(Size / 2f, Size / 2f);
+            const float inner = 18f, outer = 26f;
+            var pixels = new Color32[Size * Size];
+            for (int y = 0; y < Size; y++)
+                for (int x = 0; x < Size; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), center);
+                    Color32 c;
+                    if (d <= inner) c = new Color32(255, 255, 255, 255);
+                    else if (d <= outer) c = new Color32(0, 0, 0, (byte)(255f * Mathf.Clamp01(outer - d + 0.5f)));
+                    else c = new Color32(0, 0, 0, 0);
+                    pixels[y * Size + x] = c;
+                }
+            tex.SetPixels32(pixels);
+            tex.Apply(false, true);
+            return Sprite.Create(tex, new Rect(0, 0, Size, Size), new Vector2(0.5f, 0.5f), 100f);
+        }
 
         private static Sprite CreateArrow()
         {
