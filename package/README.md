@@ -1,4 +1,4 @@
-﻿# ValheimSlots
+# ValheimSlots
 
 *By Lorcisen*
 
