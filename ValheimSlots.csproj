@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <AssemblyName>ValheimSlots</AssemblyName>
+    <RootNamespace>ValheimSlots</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.4</Version>
+    <Authors>Lorcisen</Authors>
+    <Company>Lorcisen</Company>
+    <Product>ValheimSlots</Product>
+    <Copyright>Copyright Â© Lorcisen 2026</Copyright>
+    <Description>Client-side Valheim inventory mod: extra rows plus equipment, weapon-set, ammo, food and mead slots.</Description>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);CS0436;MSB3277</NoWarn>
+  </PropertyGroup>
+
+  <!-- Paths: override with -p:GameDir=... -p:ProfileDir=... if your install differs. -->
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == ''">F:\SteamLibrary\steamapps\common\Valheim</GameDir>
+    <ProfileDir Condition="'$(ProfileDir)' == ''">$(APPDATA)\r2modmanPlus-local\Valheim\profiles\Default</ProfileDir>
+    <ManagedDir>$(GameDir)\valheim_Data\Managed</ManagedDir>
+    <BepInExCoreDir>$(ProfileDir)\BepInEx\core</BepInExCoreDir>
+    <!-- Prefer the folder r2modman created when the zip was imported ("Import local mod"). -->
+    <PluginDeployDir Condition="Exists('$(ProfileDir)\BepInEx\plugins\Lorcisen-ValheimSlots')">$(ProfileDir)\BepInEx\plugins\Lorcisen-ValheimSlots</PluginDeployDir>
+    <PluginDeployDir Condition="'$(PluginDeployDir)' == '' And Exists('$(ProfileDir)\BepInEx\plugins\Unknown-ValheimSlots')">$(ProfileDir)\BepInEx\plugins\Unknown-ValheimSlots</PluginDeployDir>
+    <PluginDeployDir Condition="'$(PluginDeployDir)' == ''">$(ProfileDir)\BepInEx\plugins\ValheimSlots</PluginDeployDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx"><HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(BepInExCoreDir)\0Harmony.dll</HintPath><Private>false</Private></Reference>
+
+    <Reference Include="assembly_valheim"><HintPath>$(ManagedDir)\assembly_valheim.dll</HintPath><Private>false</Private><Publicize>true</Publicize></Reference>
+    <Reference Include="assembly_utils"><HintPath>$(ManagedDir)\assembly_utils.dll</HintPath><Private>false</Private><Publicize>true</Publicize></Reference>
+    <Reference Include="gui_framework"><HintPath>$(ManagedDir)\gui_framework.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="assembly_guiutils"><HintPath>$(ManagedDir)\assembly_guiutils.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(ManagedDir)\UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(ManagedDir)\UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UI"><HintPath>$(ManagedDir)\UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.UIModule"><HintPath>$(ManagedDir)\UnityEngine.UIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(ManagedDir)\UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(ManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.TextMeshPro"><HintPath>$(ManagedDir)\Unity.TextMeshPro.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.InputSystem"><HintPath>$(ManagedDir)\Unity.InputSystem.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="package\**" />
+  </ItemGroup>
+
+  <!-- Copy the built plugin straight into the r2modman profile. -->
+  <Target Name="DeployToProfile" AfterTargets="Build" Condition="Exists('$(ProfileDir)\BepInEx') And '$(Deploy)' != 'false'">
+    <MakeDir Directories="$(PluginDeployDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDeployDir)" />
+    <Message Importance="high" Text="ValheimSlots deployed to $(PluginDeployDir)" />
+  </Target>
+
+</Project>
