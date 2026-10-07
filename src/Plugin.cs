@@ -17,7 +17,7 @@ namespace ValheimSlots
         public const string Guid = "lorcisen.valheimslots";
         public const string Name = "ValheimSlots";
         private const string OldGuid = "pelle.valheimslots";
-        public const string Version = "1.0.5";
+        public const string Version = "1.0.6";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance;
@@ -75,7 +75,7 @@ namespace ValheimSlots
 
             if (Application.isBatchMode || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null)
             {
-                Log.LogInfo("Dedikerad server upptÃ¤ckt â€“ ValheimSlots Ã¤r en klientmod och gÃ¶r ingenting hÃ¤r.");
+                Log.LogInfo("Dedicated server detected - ValheimSlots is a client-side mod and does nothing here.");
                 return;
             }
 
@@ -87,7 +87,7 @@ namespace ValheimSlots
             QuickStackStoreCompat.TryPatch(_harmony);
 
             gameObject.AddComponent<SlotController>();
-            Log.LogInfo($"{Name} {Version} laddad. Huvudinventory: {MainRows.Value} rader, specialplatser pÃ¥ rad {SlotLayout.SpecialStartRow}-{SlotLayout.TotalRows - 1}.");
+            Log.LogInfo($"{Name} {Version} loaded. Main inventory: {MainRows.Value} rows, special slots on rows {SlotLayout.SpecialStartRow}-{SlotLayout.TotalRows - 1}.");
         }
 
         private void OnDestroy()
@@ -105,99 +105,141 @@ namespace ValheimSlots
                     return;
                 System.IO.File.Move(oldPath, Config.ConfigFilePath);
                 Config.Reload();
-                Log.LogInfo($"Flyttade instÃ¤llningar frÃ¥n {OldGuid}.cfg till {Guid}.cfg.");
+                Log.LogInfo($"Moved settings from {OldGuid}.cfg to {Guid}.cfg.");
             }
             catch (System.Exception e)
             {
-                Log.LogWarning($"Kunde inte flytta gamla instÃ¤llningar: {e.Message}");
+                Log.LogWarning($"Could not move old settings: {e.Message}");
             }
         }
 
+        /// <summary>
+        /// Descriptions are written in the language the game is set to when it starts (Swedish or English).
+        /// Section and key names stay English so existing config files keep working.
+        /// </summary>
         private void BindConfig()
         {
             MainRows = Config.Bind("1 - Inventory", "Main rows", 6,
-                new ConfigDescription("Antal rader i huvudinventoryt (vanilla Ã¤r 4). Om du kÃ¶pt fler rader i spelet anvÃ¤nds det hÃ¶gre vÃ¤rdet.",
+                new ConfigDescription(L.T(
+                        "Number of rows in the main inventory (vanilla is 4). If you bought more rows in game, the higher value is used.",
+                        "Antal rader i huvudinventoryt (vanilla är 4). Om du köpt fler rader i spelet används det högre värdet."),
                     new AcceptableValueRange<int>(4, SlotLayout.MaxVanillaRows)));
 
-            PanelPosition = Config.Bind("2 - Panel", "Panel position", new Vector2(740f, 28f),
-                "Specialpanelens position relativt inventoryts Ã¶vre vÃ¤nstra hÃ¶rn. Ã–ka X om panelen tÃ¤cker andra knappar.");
-            ShowEquippedMarker = Config.Bind("2 - Panel", "Show equipped check mark", true,
-                "Visa en vit bock pÃ¥ utrustade fÃ¶remÃ¥l (lÃ¤ttare att se Ã¤n fÃ¤rgmarkeringen, t.ex. vid fÃ¤rgblindhet).");
+            PanelPosition = Config.Bind("2 - Panel", "Panel position", new Vector2(740f, 28f), L.T(
+                "Position of the special slot panel relative to the inventory's top-left corner. Increase X if the panel covers other buttons.",
+                "Specialpanelens position relativt inventoryts övre vänstra hörn. Öka X om panelen täcker andra knappar."));
+            ShowEquippedMarker = Config.Bind("2 - Panel", "Show equipped check mark", true, L.T(
+                "Show a white check mark on equipped items (easier to see than the color highlight, e.g. for color blindness).",
+                "Visa en vit bock på utrustade föremål (lättare att se än färgmarkeringen, t.ex. vid färgblindhet)."));
 
             // Defaults avoid vanilla keys (V auto pickup, G radial, T emote, X sit, C walk, Q autorun, E, R, F, M)
             // and keys used by common mods (EpicLoot G/H/J, QuickStackStore P/O/L, BetterUI J, AzuHoverStats H).
             FoodKeys = new[]
             {
-                Config.Bind("3 - Hotkeys", "Food 1", new KeyboardShortcut(KeyCode.Z), "Ã„t maten i matplats 1."),
-                Config.Bind("3 - Hotkeys", "Food 2", new KeyboardShortcut(KeyCode.B), "Ã„t maten i matplats 2."),
-                Config.Bind("3 - Hotkeys", "Food 3", new KeyboardShortcut(KeyCode.N), "Ã„t maten i matplats 3."),
+                Config.Bind("3 - Hotkeys", "Food 1", new KeyboardShortcut(KeyCode.Z), L.T("Eat the food in food slot 1.", "Ät maten i matplats 1.")),
+                Config.Bind("3 - Hotkeys", "Food 2", new KeyboardShortcut(KeyCode.B), L.T("Eat the food in food slot 2.", "Ät maten i matplats 2.")),
+                Config.Bind("3 - Hotkeys", "Food 3", new KeyboardShortcut(KeyCode.N), L.T("Eat the food in food slot 3.", "Ät maten i matplats 3.")),
             };
             MeadKeys = new[]
             {
-                Config.Bind("3 - Hotkeys", "Mead 1", new KeyboardShortcut(KeyCode.Alpha9), "Drick mjÃ¶d/dryck i plats 1."),
-                Config.Bind("3 - Hotkeys", "Mead 2", new KeyboardShortcut(KeyCode.Alpha0), "Drick mjÃ¶d/dryck i plats 2."),
-                Config.Bind("3 - Hotkeys", "Mead 3", new KeyboardShortcut(KeyCode.K), "Drick mjÃ¶d/dryck i plats 3."),
+                Config.Bind("3 - Hotkeys", "Mead 1", new KeyboardShortcut(KeyCode.Alpha9), L.T("Drink the mead/potion in slot 1.", "Drick mjöd/dryck i plats 1.")),
+                Config.Bind("3 - Hotkeys", "Mead 2", new KeyboardShortcut(KeyCode.Alpha0), L.T("Drink the mead/potion in slot 2.", "Drick mjöd/dryck i plats 2.")),
+                Config.Bind("3 - Hotkeys", "Mead 3", new KeyboardShortcut(KeyCode.K), L.T("Drink the mead/potion in slot 3.", "Drick mjöd/dryck i plats 3.")),
             };
             AmmoKeys = new[]
             {
-                Config.Bind("3 - Hotkeys", "Ammo 1", new KeyboardShortcut(KeyCode.U), "VÃ¤lj ammo i ammoplats 1."),
-                Config.Bind("3 - Hotkeys", "Ammo 2", new KeyboardShortcut(KeyCode.I), "VÃ¤lj ammo i ammoplats 2."),
-                Config.Bind("3 - Hotkeys", "Ammo 3", new KeyboardShortcut(KeyCode.Y), "VÃ¤lj ammo i ammoplats 3."),
+                Config.Bind("3 - Hotkeys", "Ammo 1", new KeyboardShortcut(KeyCode.U), L.T("Select the ammo in ammo slot 1.", "Välj ammo i ammoplats 1.")),
+                Config.Bind("3 - Hotkeys", "Ammo 2", new KeyboardShortcut(KeyCode.I), L.T("Select the ammo in ammo slot 2.", "Välj ammo i ammoplats 2.")),
+                Config.Bind("3 - Hotkeys", "Ammo 3", new KeyboardShortcut(KeyCode.Y), L.T("Select the ammo in ammo slot 3.", "Välj ammo i ammoplats 3.")),
             };
-            WeaponSetKey = Config.Bind("3 - Hotkeys", "Swap weapon set", new KeyboardShortcut(KeyCode.CapsLock),
-                "Byt mellan vapenset A och B.");
-            LockModifier = Config.Bind("3 - Hotkeys", "Lock slot modifier", KeyCode.LeftAlt,
-                "HÃ¥ll in denna tangent och vÃ¤nsterklicka pÃ¥ en plats fÃ¶r att lÃ¥sa den. Om Quick Stack - Store - Sort Ã¤r installerat anvÃ¤nds dess favoritmarkering (ocksÃ¥ Alt+klick) som lÃ¥s i stÃ¤llet.");
-            AutoMoveWeapons = Config.Bind("3 - Hotkeys", "Auto move weapons to set", true,
-                "Flytta vapen till aktivt vapenset nÃ¤r du utrustar dem frÃ¥n huvudinventoryt (inte frÃ¥n hotbaren 1-8).");
+            WeaponSetKey = Config.Bind("3 - Hotkeys", "Swap weapon set", new KeyboardShortcut(KeyCode.CapsLock), L.T(
+                "Swap between weapon set A and B.",
+                "Byt mellan vapenset A och B."));
+            LockModifier = Config.Bind("3 - Hotkeys", "Lock slot modifier", KeyCode.LeftAlt, L.T(
+                "Hold this key and left-click a slot to lock it. If Quick Stack - Store - Sort is installed, its favorite marking (also Alt+click) is used as the lock instead.",
+                "Håll in denna tangent och vänsterklicka på en plats för att låsa den. Om Quick Stack - Store - Sort är installerat används dess favoritmarkering (också Alt+klick) som lås i stället."));
+            AutoMoveWeapons = Config.Bind("3 - Hotkeys", "Auto move weapons to set", true, L.T(
+                "Move weapons into the active weapon set when you equip them from the main inventory (not from the 1-8 hotbar).",
+                "Flytta vapen till aktivt vapenset när du utrustar dem från huvudinventoryt (inte från hotbaren 1-8)."));
 
-            AutoRefill = Config.Bind("4 - Auto", "Auto refill", true,
-                "Fyll pÃ¥ mat-, mjÃ¶d- och ammoplatser frÃ¥n inventoryt nÃ¤r en stack tar slut.");
-            TopUpFromInventory = Config.Bind("4 - Auto", "Top up stacks", true,
-                "Fyll pÃ¥ ofullstÃ¤ndiga stackar i mat-, mjÃ¶d- och ammoplatser frÃ¥n inventoryt (nÃ¤r inventoryt Ã¤r stÃ¤ngt).");
-            AutoEat = Config.Bind("4 - Auto", "Auto eat", false,
-                "Ã„t automatiskt frÃ¥n matplatserna nÃ¤r en matbuff hÃ¥ller pÃ¥ att ta slut eller en matplats i magen Ã¤r ledig.");
+            AutoRefill = Config.Bind("4 - Auto", "Auto refill", true, L.T(
+                "Refill food, mead and ammo slots from the inventory when a stack runs out.",
+                "Fyll på mat-, mjöd- och ammoplatser från inventoryt när en stack tar slut."));
+            TopUpFromInventory = Config.Bind("4 - Auto", "Top up stacks", true, L.T(
+                "Top up partial stacks in food, mead and ammo slots from the inventory (while the inventory is closed).",
+                "Fyll på ofullständiga stackar i mat-, mjöd- och ammoplatser från inventoryt (när inventoryt är stängt)."));
+            AutoEat = Config.Bind("4 - Auto", "Auto eat", false, L.T(
+                "Eat automatically from the food slots when a food buff is running out or a food slot in your stomach is free.",
+                "Ät automatiskt från matplatserna när en matbuff håller på att ta slut eller en matplats i magen är ledig."));
             AutoEatSecondsLeft = Config.Bind("4 - Auto", "Auto eat seconds left", 60,
-                new ConfigDescription("Ã„t igen nÃ¤r sÃ¥ hÃ¤r mÃ¥nga sekunder Ã¥terstÃ¥r av en matbuff.", new AcceptableValueRange<int>(5, 1200)));
+                new ConfigDescription(L.T(
+                        "Eat again when this many seconds of a food buff remain.",
+                        "Ät igen när så här många sekunder återstår av en matbuff."),
+                    new AcceptableValueRange<int>(5, 1200)));
 
-            AutoClearCheated = Config.Bind("6 - Cheat flag", "Auto clear inventory", true,
-                "Ta automatiskt bort \"summoned through cheating means\" frÃ¥n fÃ¶remÃ¥l i ditt inventory. " +
-                "I ett moddat spel Ã¤r prestationer redan avstÃ¤ngda, sÃ¥ markeringen har ingen funktion â€“ den sprider sig bara.");
-            ClearCheatedKey = Config.Bind("6 - Cheat flag", "Clear nearby key", new KeyboardShortcut(KeyCode.F9, KeyCode.LeftControl),
-                "Ta bort markeringen frÃ¥n inventoryt, byggnader/arbetsbÃ¤nkar och kistor inom 30 m.");
+            AutoClearCheated = Config.Bind("6 - Cheat flag", "Auto clear inventory", true, L.T(
+                "Automatically remove \"summoned through cheating means\" from items in your inventory. Achievements are already disabled in a modded game, so the flag has no function - it only spreads.",
+                "Ta automatiskt bort \"summoned through cheating means\" från föremål i ditt inventory. I ett moddat spel är prestationer redan avstängda, så markeringen har ingen funktion - den sprider sig bara."));
+            ClearCheatedKey = Config.Bind("6 - Cheat flag", "Clear nearby key", new KeyboardShortcut(KeyCode.F9, KeyCode.LeftControl), L.T(
+                "Remove the flag from your inventory, your character, and buildings/workbenches and chests within 30 m.",
+                "Ta bort markeringen från inventoryt, karaktären samt byggnader/arbetsbänkar och kistor inom 30 m."));
 
-            AutoRepair = Config.Bind("7 - Convenience", "Auto repair", true,
-                "Reparera automatiskt allt som en närliggande arbetsbänk, smedja osv. kan reparera (samma regler som reparationsknappen).");
+            AutoRepair = Config.Bind("7 - Convenience", "Auto repair", true, L.T(
+                "Automatically repair everything a nearby workbench, forge etc. can repair (same rules as the repair button).",
+                "Reparera automatiskt allt som en närliggande arbetsbänk, smedja osv. kan reparera (samma regler som reparationsknappen)."));
             AutoRepairDistance = Config.Bind("7 - Convenience", "Auto repair distance", 5f,
-                new ConfigDescription("Hur nära stationen du måste vara (meter).", new AcceptableValueRange<float>(1f, 20f)));
-            CraftSearch = Config.Bind("7 - Convenience", "Recipe search", true,
-                "Visa ett sökfält ovanför receptlistan. Börja med ! för att söka på ingrediens (t.ex. !järn).");
-            ShowGraveArrow = Config.Bind("7 - Convenience", "Grave arrow", true,
-                "Visa en pil och avståndet till din grav. Grav- och kartmarkeringen tas bort när graven är tömd.");
-            ShowPortalWarning = Config.Bind("7 - Convenience", "Portal warning", true,
-                "Visa hur många föremål du bär som inte får tas genom en portal (malm, metall m.m.).");
+                new ConfigDescription(L.T(
+                        "How close to the station you need to be (meters).",
+                        "Hur nära stationen du måste vara (meter)."),
+                    new AcceptableValueRange<float>(1f, 20f)));
+            CraftSearch = Config.Bind("7 - Convenience", "Recipe search", true, L.T(
+                "Show a search field above the recipe list. Start with ! to search by ingredient (e.g. !iron).",
+                "Visa ett sökfält ovanför receptlistan. Börja med ! för att söka på ingrediens (t.ex. !järn)."));
+            ShowGraveArrow = Config.Bind("7 - Convenience", "Grave arrow", true, L.T(
+                "Show an arrow and the distance to your grave. The grave and map marker are removed once the grave is emptied.",
+                "Visa en pil och avståndet till din grav. Grav- och kartmarkeringen tas bort när graven är tömd."));
+            ShowPortalWarning = Config.Bind("7 - Convenience", "Portal warning", true, L.T(
+                "Show how many carried items can't go through a portal (ore, metal etc.).",
+                "Visa hur många föremål du bär som inte får tas genom en portal (malm, metall m.m.)."));
 
-            PinnedEnabled = Config.Bind("8 - Pinned recipes", "Enabled", true,
-                "Högerklicka på ett recept i tillverkningslistan för att pinna det. Pinnade recept visas till höger med ingredienserna du behöver.");
-            PinnedPosition = Config.Bind("8 - Pinned recipes", "Position", new Vector2(-20f, 120f),
-                "Listans övre högra hörn, relativt skärmens högra kant (mitten i höjdled). Negativt X = in från kanten, positivt Y = uppåt.");
+            PinnedEnabled = Config.Bind("8 - Pinned recipes", "Enabled", true, L.T(
+                "Right-click a recipe in the crafting list to pin it. Pinned recipes are shown on the right with the ingredients you need.",
+                "Högerklicka på ett recept i tillverkningslistan för att pinna det. Pinnade recept visas till höger med ingredienserna du behöver."));
+            PinnedPosition = Config.Bind("8 - Pinned recipes", "Position", new Vector2(-20f, 120f), L.T(
+                "Top-right corner of the list, relative to the right edge of the screen (vertical middle). Negative X = in from the edge, positive Y = up.",
+                "Listans övre högra hörn, relativt skärmens högra kant (mitten i höjdled). Negativt X = in från kanten, positivt Y = uppåt."));
             PinnedMaxShown = Config.Bind("8 - Pinned recipes", "Max shown", 5,
-                new ConfigDescription("Hur många pinnade recept som visas samtidigt.", new AcceptableValueRange<int>(1, 15)));
-            ClearPinsKey = Config.Bind("8 - Pinned recipes", "Clear all key", new KeyboardShortcut(KeyCode.F11, KeyCode.LeftControl),
-                "Ta bort alla pinnade recept.");
+                new ConfigDescription(L.T(
+                        "How many pinned recipes are shown at once.",
+                        "Hur många pinnade recept som visas samtidigt."),
+                    new AcceptableValueRange<int>(1, 15)));
+            ClearPinsKey = Config.Bind("8 - Pinned recipes", "Clear all key", new KeyboardShortcut(KeyCode.F11, KeyCode.LeftControl), L.T(
+                "Remove all pinned recipes.",
+                "Ta bort alla pinnade recept."));
 
-            ShowHud = Config.Bind("5 - HUD", "Show quick slot HUD", true, "Visa mat-, mjÃ¶d- och ammoplatserna pÃ¥ skÃ¤rmen.");
-            HudPosition = Config.Bind("5 - HUD", "HUD position", new Vector2(0f, 230f),
-                "Position fÃ¶r HUD:en relativt skÃ¤rmens nederkant (mitten).");
-            ShowWeight = Config.Bind("5 - HUD", "Show weight", true, "Visa vikt (nu/max) ovanfÃ¶r snabbplatserna.");
+            ShowHud = Config.Bind("5 - HUD", "Show quick slot HUD", true, L.T(
+                "Show the food, mead and ammo slots on screen.",
+                "Visa mat-, mjöd- och ammoplatserna på skärmen."));
+            HudPosition = Config.Bind("5 - HUD", "HUD position", new Vector2(0f, 230f), L.T(
+                "Position of the HUD relative to the bottom center of the screen.",
+                "Position för HUD:en relativt skärmens nederkant (mitten)."));
+            ShowWeight = Config.Bind("5 - HUD", "Show weight", true, L.T(
+                "Show carry weight (current/max) above the quick slots.",
+                "Visa vikt (nu/max) ovanför snabbplatserna."));
             DurabilityWarnPercent = Config.Bind("5 - HUD", "Durability warning percent", 20,
-                new ConfigDescription("Varna nÃ¤r utrustad utrustning har mindre hÃ¥llbarhet Ã¤n sÃ¥ hÃ¤r (0 = av).", new AcceptableValueRange<int>(0, 100)));
+                new ConfigDescription(L.T(
+                        "Warn when equipped gear has less durability than this (0 = off).",
+                        "Varna när utrustad utrustning har mindre hållbarhet än så här (0 = av)."),
+                    new AcceptableValueRange<int>(0, 100)));
 
             // 1.0.0 defaults overlapped QuickStackStore's buttons and the stamina bar: move untouched values.
             if (PanelPosition.Value == new Vector2(615f, 28f))
                 PanelPosition.Value = (Vector2)PanelPosition.DefaultValue;
             if (HudPosition.Value == new Vector2(0f, 150f))
                 HudPosition.Value = (Vector2)HudPosition.DefaultValue;
+
+            // Rewrite the file so descriptions follow the current game language.
+            Config.Save();
 
             MainRows.SettingChanged += (_, __) => SlotLayout.OnLayoutChanged();
         }

@@ -99,7 +99,8 @@ namespace ValheimSlots
             {
                 int w = Mathf.CeilToInt(player.GetInventory().GetTotalWeight());
                 int max = Mathf.CeilToInt(player.GetMaxCarryWeight());
-                sb.Append(w > max ? $"<color=#ff5050>Vikt {w}/{max}</color>" : $"Vikt {w}/{max}");
+                string weight = L.T($"Weight {w}/{max}", $"Vikt {w}/{max}");
+                sb.Append(w > max ? $"<color=#ff5050>{weight}</color>" : weight);
             }
 
             int warn = Plugin.DurabilityWarnPercent.Value;
@@ -226,7 +227,8 @@ namespace ValheimSlots
             var to = Vector3.ProjectOnPlane(grave.Value - player.transform.position, Vector3.up);
             float angle = Vector3.SignedAngle(forward, to, Vector3.up);
             _graveArrow.localEulerAngles = new Vector3(0f, 0f, -angle);
-            _graveText.text = dist >= 1000f ? $"Grav {dist / 1000f:0.0} km" : $"Grav {Mathf.RoundToInt(dist)} m";
+            string graveLabel = L.T("Grave", "Grav");
+            _graveText.text = dist >= 1000f ? $"{graveLabel} {dist / 1000f:0.0} km" : $"{graveLabel} {Mathf.RoundToInt(dist)} m";
         }
 
         private static void UpdatePortal(Player player)
@@ -249,7 +251,9 @@ namespace ValheimSlots
             if (_portalIcon.sprite == null)
                 _portalIcon.sprite = NoTeleportSprite();
             _portalIcon.enabled = _portalIcon.sprite != null;
-            _portalText.text = count == 1 ? "1 föremål ej portal" : $"{count} föremål ej portal";
+            _portalText.text = count == 1
+                ? L.T("1 item can't use portals", "1 föremål ej portal")
+                : L.T($"{count} items can't use portals", $"{count} föremål ej portal");
         }
 
         /// <summary>The game's own "can't teleport" icon from the inventory slot prefab.</summary>

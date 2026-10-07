@@ -69,16 +69,16 @@ namespace ValheimSlots
                 var equipOnly = type == null ? null : AccessTools.Method(type, "IsEquipSlot", sig);
                 if (equipOrQuick == null || equipOnly == null)
                 {
-                    Plugin.Log.LogWarning("QuickStackStore hittades men dess API har ändrats – specialplatserna skyddas inte mot quick stack.");
+                    Plugin.Log.LogWarning("QuickStackStore found but its API has changed - special slots are not protected from quick stacking.");
                     return;
                 }
                 harmony.Patch(equipOrQuick, postfix: new HarmonyMethod(typeof(QuickStackStoreCompat), nameof(EquipOrQuickPostfix)));
                 harmony.Patch(equipOnly, postfix: new HarmonyMethod(typeof(QuickStackStoreCompat), nameof(EquipOnlyPostfix)));
-                Plugin.Log.LogInfo("QuickStackStore-kompatibilitet aktiv.");
+                Plugin.Log.LogInfo("QuickStackStore compatibility active.");
             }
             catch (Exception e)
             {
-                Plugin.Log.LogWarning($"QuickStackStore-kompatibilitet misslyckades: {e}");
+                Plugin.Log.LogWarning($"QuickStackStore compatibility failed: {e}");
             }
         }
 

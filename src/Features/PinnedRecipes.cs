@@ -51,12 +51,12 @@ namespace ValheimSlots
             if (existing != null)
             {
                 Pins.Remove(existing);
-                _owner.Message(MessageHud.MessageType.TopLeft, $"{name}: pin borttagen");
+                _owner.Message(MessageHud.MessageType.TopLeft, L.T($"{name}: unpinned", $"{name}: pin borttagen"));
             }
             else
             {
                 Pins.Add(new Pin { Recipe = recipe, Quality = Mathf.Max(1, quality) });
-                _owner.Message(MessageHud.MessageType.TopLeft, $"{name}: pinnad");
+                _owner.Message(MessageHud.MessageType.TopLeft, L.T($"{name}: pinned", $"{name}: pinnad"));
             }
             Changed();
         }
@@ -74,7 +74,7 @@ namespace ValheimSlots
                 return;
             Pins.Clear();
             Changed();
-            _owner?.Message(MessageHud.MessageType.TopLeft, "Alla pinnade recept borttagna");
+            _owner?.Message(MessageHud.MessageType.TopLeft, L.T("All pinned recipes removed", "Alla pinnade recept borttagna"));
         }
 
         private static Pin Find(Recipe recipe)
@@ -202,8 +202,9 @@ namespace ValheimSlots
                 return;
             Pins.Remove(pin);
             Changed();
+            string itemName = Localization.instance.Localize(recipe.m_item.m_itemData.m_shared.m_name);
             _owner?.Message(MessageHud.MessageType.TopLeft,
-                $"{Localization.instance.Localize(recipe.m_item.m_itemData.m_shared.m_name)}: klar, pin borttagen");
+                L.T($"{itemName}: done, unpinned", $"{itemName}: klar, pin borttagen"));
         }
     }
 }

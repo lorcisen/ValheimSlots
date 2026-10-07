@@ -67,7 +67,7 @@ namespace ValheimSlots
                     dropped.Add(item);
                     continue;
                 }
-                Plugin.Log.LogInfo($"Flyttar {item.m_shared.m_name} från ({item.m_gridPos.x},{item.m_gridPos.y}) till ({target.x},{target.y}).");
+                Plugin.Log.LogInfo($"Moving {item.m_shared.m_name} from ({item.m_gridPos.x},{item.m_gridPos.y}) to ({target.x},{target.y}).");
                 item.m_gridPos = target;
                 occupied.Add(target);
                 moved++;
@@ -75,7 +75,7 @@ namespace ValheimSlots
 
             foreach (var item in dropped)
             {
-                Plugin.Log.LogWarning($"Inventoryt är fullt – släpper {item.m_shared.m_name} vid dina fötter.");
+                Plugin.Log.LogWarning($"Inventory full - dropping {item.m_shared.m_name} at your feet.");
                 player.DropItem(inv, item, item.m_stack);
             }
 
@@ -84,8 +84,10 @@ namespace ValheimSlots
                 Inv.Changed(inv);
                 player.Message(MessageHud.MessageType.Center,
                     dropped.Count > 0
-                        ? $"ValheimSlots: flyttade {moved} föremål, {dropped.Count} släpptes på marken (fullt)."
-                        : $"ValheimSlots: flyttade {moved} föremål till nya platser.");
+                        ? L.T($"ValheimSlots: moved {moved} items, {dropped.Count} dropped on the ground (inventory full).",
+                              $"ValheimSlots: flyttade {moved} föremål, {dropped.Count} släpptes på marken (fullt).")
+                        : L.T($"ValheimSlots: moved {moved} items to new slots.",
+                              $"ValheimSlots: flyttade {moved} föremål till nya platser."));
             }
             player.m_customData[VersionKey] = Plugin.Version;
         }

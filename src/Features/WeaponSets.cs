@@ -34,7 +34,7 @@ namespace ValheimSlots
             var off = Get(inv, SlotKind.WeaponOff, target);
             if (main == null && off == null)
             {
-                player.Message(MessageHud.MessageType.Center, $"Vapenset {SetName(target)} är tomt");
+                player.Message(MessageHud.MessageType.Center, L.T($"Weapon set {SetName(target)} is empty", $"Vapenset {SetName(target)} är tomt"));
                 return;
             }
 
@@ -58,7 +58,7 @@ namespace ValheimSlots
             }
 
             ActiveSet = target;
-            player.Message(MessageHud.MessageType.TopLeft, $"Vapenset {SetName(target)}");
+            player.Message(MessageHud.MessageType.TopLeft, L.T($"Weapon set {SetName(target)}", $"Vapenset {SetName(target)}"));
         }
 
         private static ItemDrop.ItemData Get(Inventory inv, SlotKind kind, int set)

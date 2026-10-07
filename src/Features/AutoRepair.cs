@@ -44,7 +44,9 @@ namespace ValheimSlots
             station.m_repairItemDoneEffects.Create(station.transform.position, Quaternion.identity);
             string where = Localization.instance.Localize(station.m_name);
             player.Message(MessageHud.MessageType.Center,
-                repaired == 1 ? $"Reparerade 1 föremål vid {where}" : $"Reparerade {repaired} föremål vid {where}");
+                repaired == 1
+                    ? L.T($"Repaired 1 item at {where}", $"Reparerade 1 föremål vid {where}")
+                    : L.T($"Repaired {repaired} items at {where}", $"Reparerade {repaired} föremål vid {where}"));
         }
 
         private static CraftingStation NearestStation(Vector3 pos, float maxDistance)

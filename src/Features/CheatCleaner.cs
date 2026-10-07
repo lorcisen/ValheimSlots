@@ -42,7 +42,7 @@ namespace ValheimSlots
             if (profile == null || !profile.m_usedCheats)
                 return false;
             profile.m_usedCheats = false;
-            Plugin.Log.LogInfo("CheatCleaner: karaktärens fuskmarkering borttagen.");
+            Plugin.Log.LogInfo("CheatCleaner: removed the character's used-cheats flag.");
             return true;
         }
 
@@ -92,8 +92,9 @@ namespace ValheimSlots
             }
 
             player.Message(MessageHud.MessageType.Center,
-                $"Fuskmarkering borttagen: {items} föremål i inventoryt, {pieces} byggnader, {chestItems} föremål i kistor"
-                + (profile ? ", karaktären" : ""));
+                L.T($"Cheat flag removed: {items} items in inventory, {pieces} buildings, {chestItems} items in chests",
+                    $"Fuskmarkering borttagen: {items} föremål i inventoryt, {pieces} byggnader, {chestItems} föremål i kistor")
+                + (profile ? L.T(", character", ", karaktären") : ""));
             Plugin.Log.LogInfo($"CheatCleaner: inventory {items}, pieces {pieces}, chest items {chestItems} (radie {Radius} m).");
         }
 

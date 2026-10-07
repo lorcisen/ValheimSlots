@@ -101,6 +101,7 @@ namespace ValheimSlots
             if (_field != null)
             {
                 if (!_field.gameObject.activeSelf) _field.gameObject.SetActive(true);
+                SetPlaceholder();
                 return;
             }
 
@@ -108,7 +109,7 @@ namespace ValheimSlots
             var list = gui.m_recipeListRoot;
             if (template == null || list == null)
             {
-                Plugin.Log.LogWarning("Receptsökning: hittade inte byggmenyns sökfält eller receptlistan – sökfältet visas inte.");
+                Plugin.Log.LogWarning("Recipe search: could not find the build menu search field or the recipe list - the search field is not shown.");
                 return;
             }
 
@@ -127,8 +128,7 @@ namespace ValheimSlots
             DisablePersistentListeners(_field.onEndEdit);
             DisablePersistentListeners(_field.onSubmit);
             _field.SetTextWithoutNotify("");
-            if (_field.placeholder is TMP_Text placeholder)
-                placeholder.text = "Sök recept…  (!järn = ingrediens)";
+            SetPlaceholder();
 
             // Place the field in the strip freed above the list (same horizontal anchors as the list).
             var rt = (RectTransform)go.transform;
@@ -141,6 +141,12 @@ namespace ValheimSlots
             rt.SetAsLastSibling();
 
             _field.onValueChanged.AddListener(OnQueryChanged);
+        }
+
+        private static void SetPlaceholder()
+        {
+            if (_field != null && _field.placeholder is TMP_Text placeholder)
+                placeholder.text = L.T("Search recipes…  (!iron = ingredient)", "Sök recept…  (!järn = ingrediens)");
         }
 
         private static void OnQueryChanged(string value)

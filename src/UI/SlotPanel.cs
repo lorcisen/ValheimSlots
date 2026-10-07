@@ -233,7 +233,8 @@ namespace ValheimSlots
                     text = SlotLayout.KeyText(SlotLayout.HotkeyFor(def));
                     color = HotkeyLabel;
                     if (def.Group == 2)
-                        SetRowHeader(go, binding, def.Kind == SlotKind.Food ? "Mat" : def.Kind == SlotKind.Mead ? "Mjöd" : "Ammo");
+                        SetRowHeader(go, binding, def.Kind == SlotKind.Food ? L.T("Food", "Mat")
+                            : def.Kind == SlotKind.Mead ? L.T("Mead", "Mjöd") : L.T("Ammo", "Ammo"));
                     break;
                 case SlotKind.WeaponMain:
                     text = def.Label + "1";
@@ -251,7 +252,7 @@ namespace ValheimSlots
             binding.color = color;
         }
 
-        /// <summary>A header ("Mat", "Mjöd", "Ammo") in the free fourth cell, right of the row's last slot.</summary>
+        /// <summary>A header ("Food", "Mead", "Ammo") in the free fourth cell, right of the row's last slot.</summary>
         private static void SetRowHeader(GameObject lastSlotInRow, TMP_Text template, string text)
         {
             const string name = "ValheimSlotsRowHeader";

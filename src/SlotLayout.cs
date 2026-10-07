@@ -25,17 +25,22 @@ namespace ValheimSlots
         public readonly Vector2i GridPos;
         /// <summary>Cell (column, row) in the special panel.</summary>
         public readonly Vector2i PanelCell;
-        public readonly string Label;
+        private readonly string _labelEn;
+        private readonly string _labelSv;
         /// <summary>Hotkey number (0-2) for food/mead/ammo, weapon set (0 = A, 1 = B) for weapons.</summary>
         public readonly int Group;
 
-        public SlotDef(int index, SlotKind kind, Vector2i gridPos, Vector2i panelCell, string label, int group = 0)
+        /// <summary>Slot label in the game's language.</summary>
+        public string Label => L.T(_labelEn, _labelSv);
+
+        public SlotDef(int index, SlotKind kind, Vector2i gridPos, Vector2i panelCell, string labelEn, string labelSv, int group = 0)
         {
             Index = index;
             Kind = kind;
             GridPos = gridPos;
             PanelCell = panelCell;
-            Label = label;
+            _labelEn = labelEn;
+            _labelSv = labelSv;
             Group = group;
         }
 
@@ -74,32 +79,32 @@ namespace ValheimSlots
         {
             int r0 = SpecialStartRow, r1 = SpecialStartRow + 1, r2 = SpecialStartRow + 2;
 
-            Add(SlotKind.Helmet, 0, r0, 0, 0, "Hjälm");
-            Add(SlotKind.Chest, 1, r0, 1, 0, "Bröst");
-            Add(SlotKind.Legs, 2, r0, 2, 0, "Ben");
-            Add(SlotKind.Cape, 3, r0, 3, 0, "Mantel");
-            Add(SlotKind.Utility, 4, r0, 0, 1, "Bälte");
-            Add(SlotKind.Trinket, 5, r0, 1, 1, "Trinket");
+            Add(SlotKind.Helmet, 0, r0, 0, 0, "Helmet", "Hjälm");
+            Add(SlotKind.Chest, 1, r0, 1, 0, "Chest", "Bröst");
+            Add(SlotKind.Legs, 2, r0, 2, 0, "Legs", "Ben");
+            Add(SlotKind.Cape, 3, r0, 3, 0, "Cape", "Mantel");
+            Add(SlotKind.Utility, 4, r0, 0, 1, "Belt", "Bälte");
+            Add(SlotKind.Trinket, 5, r0, 1, 1, "Trinket", "Trinket");
 
-            Add(SlotKind.WeaponMain, 0, r1, 0, 2, "A", 0);
-            Add(SlotKind.WeaponOff, 1, r1, 1, 2, "A", 0);
-            Add(SlotKind.WeaponMain, 2, r1, 2, 2, "B", 1);
-            Add(SlotKind.WeaponOff, 3, r1, 3, 2, "B", 1);
-            Add(SlotKind.Ammo, 4, r1, 0, 3, "", 0);
-            Add(SlotKind.Ammo, 5, r1, 1, 3, "", 1);
-            Add(SlotKind.Ammo, 6, r1, 2, 3, "", 2);
+            Add(SlotKind.WeaponMain, 0, r1, 0, 2, "A", "A", 0);
+            Add(SlotKind.WeaponOff, 1, r1, 1, 2, "A", "A", 0);
+            Add(SlotKind.WeaponMain, 2, r1, 2, 2, "B", "B", 1);
+            Add(SlotKind.WeaponOff, 3, r1, 3, 2, "B", "B", 1);
+            Add(SlotKind.Ammo, 4, r1, 0, 3, "", "", 0);
+            Add(SlotKind.Ammo, 5, r1, 1, 3, "", "", 1);
+            Add(SlotKind.Ammo, 6, r1, 2, 3, "", "", 2);
 
-            Add(SlotKind.Food, 0, r2, 0, 4, "", 0);
-            Add(SlotKind.Food, 1, r2, 1, 4, "", 1);
-            Add(SlotKind.Food, 2, r2, 2, 4, "", 2);
-            Add(SlotKind.Mead, 3, r2, 0, 5, "", 0);
-            Add(SlotKind.Mead, 4, r2, 1, 5, "", 1);
-            Add(SlotKind.Mead, 5, r2, 2, 5, "", 2);
+            Add(SlotKind.Food, 0, r2, 0, 4, "", "", 0);
+            Add(SlotKind.Food, 1, r2, 1, 4, "", "", 1);
+            Add(SlotKind.Food, 2, r2, 2, 4, "", "", 2);
+            Add(SlotKind.Mead, 3, r2, 0, 5, "", "", 0);
+            Add(SlotKind.Mead, 4, r2, 1, 5, "", "", 1);
+            Add(SlotKind.Mead, 5, r2, 2, 5, "", "", 2);
         }
 
-        private static void Add(SlotKind kind, int x, int y, int col, int row, string label, int group = 0)
+        private static void Add(SlotKind kind, int x, int y, int col, int row, string labelEn, string labelSv, int group = 0)
         {
-            var def = new SlotDef(Slots.Count, kind, new Vector2i(x, y), new Vector2i(col, row), label, group);
+            var def = new SlotDef(Slots.Count, kind, new Vector2i(x, y), new Vector2i(col, row), labelEn, labelSv, group);
             Slots.Add(def);
             ByPos[def.GridPos] = def;
         }

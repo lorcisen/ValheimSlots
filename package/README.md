@@ -24,6 +24,8 @@ Client-side inventory mod for Valheim 1.0.x. Only you need it. Servers and other
 
 All keys and options are in `BepInEx/config/lorcisen.valheimslots.cfg`.
 
+**Languages:** English and Swedish. Texts follow the game's language setting.
+
 ## Compatibility
 - **EpicLoot:** magic items keep all their data, and equipped items count as normal.
 - **Multiplayer:** everything is stored in your normal character inventory. Graves work for everyone, including players without the mod.

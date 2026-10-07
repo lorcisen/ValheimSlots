@@ -67,7 +67,7 @@ namespace ValheimSlots
             var item = player.m_inventory.GetItemAt(def.GridPos.x, def.GridPos.y);
             if (item == null)
             {
-                player.Message(MessageHud.MessageType.TopLeft, "Platsen är tom");
+                player.Message(MessageHud.MessageType.TopLeft, L.T("The slot is empty", "Platsen är tom"));
                 return;
             }
 

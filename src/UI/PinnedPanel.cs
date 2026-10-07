@@ -43,6 +43,7 @@ namespace ValheimSlots
         private static Hud _builtFor;
         private static TMP_FontAsset _font;
         private static int _builtVersion = -1;
+        private static bool _builtSwedish;
         private static readonly List<Block> Blocks = new List<Block>();
         private static float _nextCount;
         private static bool _buttonsShown;
@@ -68,8 +69,12 @@ namespace ValheimSlots
             if (!show)
                 return;
 
-            if (_builtVersion != PinnedRecipes.Version)
-                Rebuild(pins);
+            bool swedish = L.Swedish;
+            if (_builtVersion != PinnedRecipes.Version || _builtSwedish != swedish)
+            {
+                _builtSwedish = swedish;
+                Rebuild(pins); // names and labels follow the game language
+            }
 
             bool inventoryOpen = InventoryGui.IsVisible();
             if (_buttonsShown != inventoryOpen)
@@ -189,7 +194,7 @@ namespace ValheimSlots
             float y = -Pad;
             NewIcon(bg, item.GetIcon(), new Vector2(Pad, y), 24f);
             string title = Localization.instance.Localize(item.m_shared.m_name);
-            if (pin.Quality > 1) title += $" (nivå {pin.Quality})";
+            if (pin.Quality > 1) title += L.T($" (level {pin.Quality})", $" (nivå {pin.Quality})");
             var titleText = NewText(bg, title, 17f, new Vector2(Pad + 30f, y), new Vector2(Width - Pad * 2f - 30f - 52f, HeaderHeight));
             titleText.fontStyle = FontStyles.Bold;
             block.HeaderCheck = NewIcon(bg, EquippedMarker.Sprite, new Vector2(Width - Pad - 50f, y - 2f), 22f);

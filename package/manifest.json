@@ -1,6 +1,6 @@
 {
   "name": "ValheimSlots",
-  "version_number": "1.0.5",
+  "version_number": "1.0.6",
   "website_url": "https://github.com/lorcisen/ValheimSlots",
   "description": "Client-side: bigger inventory (8x6) plus dedicated equipment, weapon-set, ammo, food and mead slots with hotkeys. Works with EpicLoot and multiplayer.",
   "dependencies": [

@@ -41,7 +41,7 @@ namespace ValheimSlots
 
             if (!DropAllowed(grid.GetInventory(), __instance.m_dragInventory, __instance.m_dragItem, item, pos))
             {
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, "Det föremålet passar inte här");
+                Player.m_localPlayer.Message(MessageHud.MessageType.Center, L.T("That item doesn't fit here", "Det föremålet passar inte här"));
                 return false;
             }
             return true;
@@ -113,7 +113,7 @@ namespace ValheimSlots
             if (!SlotLayout.IsMain(pos))
                 return true;
             bool locked = LockedSlots.Toggle(pos);
-            Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, locked ? "Plats låst" : "Plats upplåst");
+            Player.m_localPlayer.Message(MessageHud.MessageType.TopLeft, locked ? L.T("Slot locked", "Plats låst") : L.T("Slot unlocked", "Plats upplåst"));
             return false;
         }
 

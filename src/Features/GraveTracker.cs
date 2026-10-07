@@ -135,7 +135,7 @@ namespace ValheimSlots
                     RemoveDeathPin(g.Pos);
                     Graves.Remove(g);
                     changed = true;
-                    player.Message(MessageHud.MessageType.TopLeft, "Graven är tömd – markeringen borttagen");
+                    player.Message(MessageHud.MessageType.TopLeft, L.T("Grave emptied - marker removed", "Graven är tömd - markeringen borttagen"));
                 }
             }
 
@@ -201,7 +201,7 @@ namespace ValheimSlots
             }
             catch (Exception e)
             {
-                Plugin.Log.LogWarning($"Kunde inte läsa gravlistan: {e.Message}");
+                Plugin.Log.LogWarning($"Could not read the grave list: {e.Message}");
             }
         }
 
@@ -217,7 +217,7 @@ namespace ValheimSlots
             }
             catch (Exception e)
             {
-                Plugin.Log.LogWarning($"Kunde inte spara gravlistan: {e.Message}");
+                Plugin.Log.LogWarning($"Could not save the grave list: {e.Message}");
             }
         }
 

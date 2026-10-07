@@ -23,3 +23,8 @@
 
 ## 1.0.5
 - Pinned recipes: right-click a recipe in the crafting list to pin it. Pinned recipes are listed on the right side with ingredient counts from your inventory (check mark when you have enough). They are removed automatically after crafting, with the X (inventory open) or with Ctrl+F11.
+
+## 1.0.6
+- All texts follow the game language: Swedish when Valheim runs in Swedish, English otherwise. Switching language in game updates the texts right away.
+- Config descriptions are written in the game language; log messages are in English.
+- Fixed garbled Swedish characters in the config descriptions.
