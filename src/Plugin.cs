@@ -17,7 +17,7 @@ namespace ValheimSlots
         public const string Guid = "lorcisen.valheimslots";
         public const string Name = "ValheimSlots";
         private const string OldGuid = "pelle.valheimslots";
-        public const string Version = "1.0.6";
+        public const string Version = "1.0.7";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance;
@@ -59,6 +59,7 @@ namespace ValheimSlots
         internal static ConfigEntry<Vector2> PinnedPosition;
         internal static ConfigEntry<int> PinnedMaxShown;
         internal static ConfigEntry<KeyboardShortcut> ClearPinsKey;
+        internal static ConfigEntry<KeyboardShortcut> PinPieceKey;
 
         // HUD
         internal static ConfigEntry<bool> ShowHud;
@@ -216,6 +217,9 @@ namespace ValheimSlots
             ClearPinsKey = Config.Bind("8 - Pinned recipes", "Clear all key", new KeyboardShortcut(KeyCode.F11, KeyCode.LeftControl), L.T(
                 "Remove all pinned recipes.",
                 "Ta bort alla pinnade recept."));
+            PinPieceKey = Config.Bind("8 - Pinned recipes", "Pin build piece key", new KeyboardShortcut(KeyCode.Mouse2), L.T(
+                "Press while hovering a piece in the build menu (hammer, cultivator, ...) to pin or unpin it. Default: middle mouse button.",
+                "Tryck medan du håller musen över en byggbit i byggmenyn (hammare, kultivator, ...) för att pinna eller ta bort den. Standard: mittenklick (scrollhjulet)."));
 
             ShowHud = Config.Bind("5 - HUD", "Show quick slot HUD", true, L.T(
                 "Show the food, mead and ammo slots on screen.",

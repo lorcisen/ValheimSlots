@@ -19,6 +19,7 @@ namespace ValheimSlots
 
             if (player.TakeInput())
                 HandleHotkeys(player);
+            PinnedRecipes.HandleBuildMenuInput(); // build menu is open, so TakeInput is not required
 
             float now = Time.time;
             if (now >= _nextRefill)

@@ -28,3 +28,6 @@
 - All texts follow the game language: Swedish when Valheim runs in Swedish, English otherwise. Switching language in game updates the texts right away.
 - Config descriptions are written in the game language; log messages are in English.
 - Fixed garbled Swedish characters in the config descriptions.
+
+## 1.0.7
+- Build pieces can be pinned too: middle-click a piece in the build menu (hammer, cultivator, ...). Works with the vanilla build menu and Legacy Build Menu. The pin is removed when you place the piece.

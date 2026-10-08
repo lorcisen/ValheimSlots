@@ -163,7 +163,7 @@ namespace ValheimSlots
             int shown = 0;
             foreach (var pin in pins)
             {
-                if (pin.Recipe == null || pin.Recipe.m_item == null)
+                if (!pin.IsValid)
                     continue;
                 if (shown++ >= Plugin.PinnedMaxShown.Value)
                     break;
@@ -177,10 +177,9 @@ namespace ValheimSlots
         private static float BuildBlock(PinnedRecipes.Pin pin, float top)
         {
             var block = new Block { Pin = pin };
-            var item = pin.Recipe.m_item.m_itemData;
 
             var reqs = new List<Piece.Requirement>();
-            foreach (var req in pin.Recipe.m_resources)
+            foreach (var req in pin.Requirements ?? new Piece.Requirement[0])
                 if (req?.m_resItem != null && req.GetAmount(pin.Quality) > 0)
                     reqs.Add(req);
 
@@ -192,8 +191,8 @@ namespace ValheimSlots
 
             // Header: icon, name (+ level), all-ingredients check, remove button.
             float y = -Pad;
-            NewIcon(bg, item.GetIcon(), new Vector2(Pad, y), 24f);
-            string title = Localization.instance.Localize(item.m_shared.m_name);
+            NewIcon(bg, pin.Icon, new Vector2(Pad, y), 24f);
+            string title = pin.DisplayName;
             if (pin.Quality > 1) title += L.T($" (level {pin.Quality})", $" (nivå {pin.Quality})");
             var titleText = NewText(bg, title, 17f, new Vector2(Pad + 30f, y), new Vector2(Width - Pad * 2f - 30f - 52f, HeaderHeight));
             titleText.fontStyle = FontStyles.Bold;

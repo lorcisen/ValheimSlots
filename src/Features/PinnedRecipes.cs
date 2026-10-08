@@ -8,10 +8,11 @@ using UnityEngine.EventSystems;
 namespace ValheimSlots
 {
     /// <summary>
-    /// Recipes the player has pinned (right-click in the recipe list). Shown by <see cref="PinnedPanel"/>.
-    /// A pin is a recipe + target quality (1 = craft, 2+ = upgrade to that level). Each recipe can be pinned once.
-    /// Pins are removed automatically when that recipe is successfully crafted/upgraded.
-    /// Stored per character in Player.m_customData.
+    /// Recipes and build pieces the player has pinned. Shown by <see cref="PinnedPanel"/>.
+    ///  - Crafting recipes: right-click in the recipe list. Quality 1 = craft, 2+ = upgrade to that level.
+    ///  - Build pieces (hammer, cultivator, ...): middle-click a piece in the build menu.
+    /// Each recipe/piece can be pinned once. Pins are removed automatically when that recipe is crafted/upgraded
+    /// or that piece is placed. Stored per character in Player.m_customData.
     /// </summary>
     [HarmonyPatch]
     internal static class PinnedRecipes
@@ -19,10 +20,28 @@ namespace ValheimSlots
         internal sealed class Pin
         {
             public Recipe Recipe;
-            public int Quality;
+            public Piece Piece;
+            public int Quality = 1;
+
+            public bool IsValid => (Recipe != null && Recipe.m_item != null) || Piece != null;
+
+            public string DisplayName => Localization.instance.Localize(
+                Recipe != null ? Recipe.m_item.m_itemData.m_shared.m_name : Piece.m_name);
+
+            public Sprite Icon => Recipe != null ? Recipe.m_item.m_itemData.GetIcon() : Piece.m_icon;
+
+            public Piece.Requirement[] Requirements => Recipe != null ? Recipe.m_resources : Piece.m_resources;
+
+            /// <summary>Saved id: "Recipe_X@quality" for recipes, "piece:prefab@1" for build pieces.</summary>
+            public string Id => Recipe != null
+                ? Clean(Recipe.name) + "@" + Quality
+                : PiecePrefix + Clean(Utils.GetPrefabName(Piece.gameObject)) + "@1";
+
+            private static string Clean(string s) => s.Replace(";", "").Replace("@", "");
         }
 
         private const string Key = "ValheimSlots.pins";
+        private const string PiecePrefix = "piece:";
 
         private static readonly List<Pin> Pins = new List<Pin>();
         private static Player _owner;
@@ -44,21 +63,44 @@ namespace ValheimSlots
         internal static void Toggle(Recipe recipe, int quality)
         {
             EnsureLoaded();
-            if (recipe == null || _owner == null)
+            if (recipe == null || recipe.m_item == null || _owner == null)
                 return;
-            var existing = Find(recipe);
-            string name = Localization.instance.Localize(recipe.m_item.m_itemData.m_shared.m_name);
+            Toggle(Find(recipe), new Pin { Recipe = recipe, Quality = Mathf.Max(1, quality) });
+        }
+
+        internal static void Toggle(Piece piece)
+        {
+            EnsureLoaded();
+            if (piece == null || _owner == null)
+                return;
+            Toggle(Find(piece), new Pin { Piece = piece });
+        }
+
+        private static void Toggle(Pin existing, Pin added)
+        {
             if (existing != null)
             {
                 Pins.Remove(existing);
+                string name = existing.DisplayName;
                 _owner.Message(MessageHud.MessageType.TopLeft, L.T($"{name}: unpinned", $"{name}: pin borttagen"));
             }
             else
             {
-                Pins.Add(new Pin { Recipe = recipe, Quality = Mathf.Max(1, quality) });
+                Pins.Add(added);
+                string name = added.DisplayName;
                 _owner.Message(MessageHud.MessageType.TopLeft, L.T($"{name}: pinned", $"{name}: pinnad"));
             }
             Changed();
+        }
+
+        /// <summary>Middle-click (configurable) on a piece in the build menu pins it.</summary>
+        internal static void HandleBuildMenuInput()
+        {
+            if (!Plugin.PinnedEnabled.Value || !Hud.IsPieceSelectionVisible() || Hud.instance == null)
+                return;
+            var piece = Hud.instance.m_hoveredPiece;
+            if (piece != null && SlotController.IsDown(Plugin.PinPieceKey.Value))
+                Toggle(piece);
         }
 
         internal static void Remove(Pin pin)
@@ -79,8 +121,21 @@ namespace ValheimSlots
 
         private static Pin Find(Recipe recipe)
         {
+            if (recipe == null)
+                return null;
             foreach (var p in Pins)
-                if (p.Recipe == recipe || (p.Recipe != null && recipe != null && p.Recipe.name == recipe.name))
+                if (p.Recipe != null && (p.Recipe == recipe || p.Recipe.name == recipe.name))
+                    return p;
+            return null;
+        }
+
+        private static Pin Find(Piece piece)
+        {
+            if (piece == null)
+                return null;
+            string prefab = Utils.GetPrefabName(piece.gameObject);
+            foreach (var p in Pins)
+                if (p.Piece != null && (p.Piece == piece || Utils.GetPrefabName(p.Piece.gameObject) == prefab))
                     return p;
             return null;
         }
@@ -111,6 +166,14 @@ namespace ValheimSlots
                 var bits = part.Split('@');
                 if (bits.Length != 2 || !int.TryParse(bits[1], out int quality))
                     continue;
+                if (bits[0].StartsWith(PiecePrefix))
+                {
+                    var prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(bits[0].Substring(PiecePrefix.Length)) : null;
+                    var piece = prefab != null ? prefab.GetComponent<Piece>() : null;
+                    if (piece != null && Find(piece) == null)
+                        Pins.Add(new Pin { Piece = piece });
+                    continue;
+                }
                 var recipe = ObjectDB.instance.m_recipes.Find(r => r != null && r.name == bits[0]);
                 if (recipe != null && recipe.m_item != null && Find(recipe) == null)
                     Pins.Add(new Pin { Recipe = recipe, Quality = quality });
@@ -124,9 +187,9 @@ namespace ValheimSlots
             var sb = new StringBuilder();
             foreach (var p in Pins)
             {
-                if (p.Recipe == null) continue;
+                if (!p.IsValid) continue;
                 if (sb.Length > 0) sb.Append(';');
-                sb.Append(p.Recipe.name.Replace(";", "").Replace("@", "")).Append('@').Append(p.Quality);
+                sb.Append(p.Id);
             }
             if (sb.Length == 0)
                 _owner.m_customData.Remove(Key);
@@ -184,6 +247,23 @@ namespace ValheimSlots
         {
             if (_crafting != null && __result != null && _crafting.m_item != null && name == _crafting.m_item.gameObject.name)
                 _crafted = true;
+        }
+
+        /// <summary>A pinned build piece is done once you have successfully placed it.</summary>
+        [HarmonyPatch(typeof(Player), nameof(Player.TryPlacePiece))]
+        [HarmonyPostfix]
+        private static void Player_TryPlacePiece(Player __instance, Piece piece, bool __result)
+        {
+            if (!__result || piece == null || __instance != Player.m_localPlayer)
+                return;
+            EnsureLoaded();
+            var pin = Find(piece);
+            if (pin == null)
+                return;
+            Pins.Remove(pin);
+            Changed();
+            string name = pin.DisplayName;
+            _owner?.Message(MessageHud.MessageType.TopLeft, L.T($"{name}: built, unpinned", $"{name}: byggd, pin borttagen"));
         }
 
         [HarmonyPatch(typeof(InventoryGui), nameof(InventoryGui.DoCrafting))]
