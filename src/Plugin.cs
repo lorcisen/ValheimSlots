@@ -83,6 +83,7 @@ namespace ValheimSlots
 
             MigrateOldConfigFile();
             BindConfig();
+            ModdedAchievements.CaptureAtStartup();
 
             _harmony = new Harmony(Guid);
             _harmony.PatchAll(typeof(Plugin).Assembly);
@@ -181,16 +182,10 @@ namespace ValheimSlots
                     new AcceptableValueRange<int>(5, 1200)));
 
             AchievementsWhenModded = Config.Bind("6 - Cheat flag", "Achievements when modded", false, L.T(
-                "Allow achievements even though the game is modded. Only the modded state is ignored - cheat commands, cheat world modifiers and cheated items still block achievements. Off = normal Valheim behaviour.",
-                "Tillåt prestationer trots att spelet är moddat. Bara moddningen ignoreras - fuskkommandon, fusk-världsinställningar och fuskmarkerade föremål spärrar fortfarande. Av = vanligt Valheim-beteende."));
-            AchievementsWhenModded.SettingChanged += (_, __) =>
-            {
-                ModdedAchievements.LogState();
-                Achievements.m_cheatCheckFrame = -1; // re-evaluate right away
-                Player.m_localPlayer?.Message(MessageHud.MessageType.TopLeft, AchievementsWhenModded.Value
-                    ? L.T("Achievements in modded game: ON", "Prestationer i moddat spel: PÅ")
-                    : L.T("Achievements in modded game: OFF", "Prestationer i moddat spel: AV"));
-            };
+                "Allow achievements even though the game is modded. Only the modded state is ignored - cheat commands, cheat world modifiers and cheated items still block achievements. Off = normal Valheim behaviour. Can also be toggled in the pause menu (Esc). Takes effect after restarting the game.",
+                "Tillåt prestationer trots att spelet är moddat. Bara moddningen ignoreras - fuskkommandon, fusk-världsinställningar och fuskmarkerade föremål spärrar fortfarande. Av = vanligt Valheim-beteende. Kan också slås på/av i pausmenyn (Esc). Gäller efter omstart av spelet."));
+            // Takes effect after a restart; tell the player in the middle of the screen.
+            AchievementsWhenModded.SettingChanged += (_, __) => ModdedAchievements.OnSettingChanged();
 
             AutoClearCheated = Config.Bind("6 - Cheat flag", "Auto clear inventory", true, L.T(
                 "Automatically remove \"summoned through cheating means\" from items in your inventory. Achievements are already disabled in a modded game, so the flag has no function - it only spreads.",

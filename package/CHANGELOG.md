@@ -34,3 +34,4 @@
 
 ## 1.0.8
 - New option "Achievements when modded" (off by default): earn achievements in a modded game. Only the modded state is ignored; cheat commands, cheat world modifiers and cheated items still block achievements. The game still reports itself as modded.
+- Toggle it with the new "Achievements (modded)" button in the pause menu (Esc). A message in the middle of the screen reminds you that it takes effect after restarting the game.
