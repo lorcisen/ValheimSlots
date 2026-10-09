@@ -8,7 +8,7 @@ namespace ValheimSlots
 {
     /// <summary>
     /// A toggle in the pause menu (Esc), just above Logout:
-    ///   "Achievements (modded): OFF"  /  "Achievements (modded): ON - restart required"
+    ///   "Achievements: OFF"  /  "Achievements: ON (restart)"
     /// Cloned from the Settings button so it looks native (the same way Mod Configs adds its button).
     /// </summary>
     [HarmonyPatch]
@@ -72,16 +72,28 @@ namespace ValheimSlots
             if (_button == null)
                 return;
             bool on = Plugin.AchievementsWhenModded.Value;
-            string text = L.T($"Achievements (modded): {(on ? "ON" : "OFF")}", $"Prestationer (moddat): {(on ? "PÅ" : "AV")}");
+            // Short, like the other menu entries; the restart notice is shown in the middle of the screen.
+            string text = L.T($"Achievements: {(on ? "ON" : "OFF")}", $"Prestationer: {(on ? "PÅ" : "AV")}");
             if (on != ModdedAchievements.ActiveThisSession)
-                text += L.T(" - restart required", " - starta om");
+                text += L.T(" (restart)", " (starta om)");
 
             var tmp = _button.GetComponentInChildren<TMP_Text>(true);
             if (tmp != null)
             {
                 tmp.text = text;
-                tmp.enableAutoSizing = true;
-                tmp.fontSizeMin = 10f;
+                // Same size as the Settings entry next to it.
+                var reference = Menu.instance != null && Menu.instance.m_settingsButton != null
+                    ? Menu.instance.m_settingsButton.GetComponentInChildren<TMP_Text>(true)
+                    : null;
+                tmp.enableAutoSizing = reference != null && reference.enableAutoSizing;
+                if (reference != null)
+                {
+                    tmp.fontSize = reference.fontSize;
+                    tmp.fontSizeMin = reference.fontSizeMin;
+                    tmp.fontSizeMax = reference.fontSizeMax;
+                }
+                tmp.textWrappingMode = TextWrappingModes.NoWrap;
+                tmp.overflowMode = TextOverflowModes.Overflow;
             }
             var legacy = _button.GetComponentInChildren<Text>(true);
             if (legacy != null)
