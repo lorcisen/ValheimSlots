@@ -31,3 +31,6 @@
 
 ## 1.0.7
 - Build pieces can be pinned too: middle-click a piece in the build menu (hammer, cultivator, ...). Works with the vanilla build menu and Legacy Build Menu. The pin is removed when you place the piece.
+
+## 1.0.8
+- New option "Achievements when modded" (off by default): earn achievements in a modded game. Only the modded state is ignored; cheat commands, cheat world modifiers and cheated items still block achievements. The game still reports itself as modded.

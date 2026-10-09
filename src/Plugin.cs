@@ -17,7 +17,7 @@ namespace ValheimSlots
         public const string Guid = "lorcisen.valheimslots";
         public const string Name = "ValheimSlots";
         private const string OldGuid = "pelle.valheimslots";
-        public const string Version = "1.0.7";
+        public const string Version = "1.0.8";
 
         internal static ManualLogSource Log;
         internal static Plugin Instance;
@@ -43,7 +43,8 @@ namespace ValheimSlots
         internal static ConfigEntry<bool> AutoEat;
         internal static ConfigEntry<int> AutoEatSecondsLeft;
 
-        // Cheat flag
+        // Cheat flag / achievements
+        internal static ConfigEntry<bool> AchievementsWhenModded;
         internal static ConfigEntry<bool> AutoClearCheated;
         internal static ConfigEntry<KeyboardShortcut> ClearCheatedKey;
 
@@ -88,6 +89,7 @@ namespace ValheimSlots
             QuickStackStoreCompat.TryPatch(_harmony);
 
             gameObject.AddComponent<SlotController>();
+            ModdedAchievements.LogState();
             Log.LogInfo($"{Name} {Version} loaded. Main inventory: {MainRows.Value} rows, special slots on rows {SlotLayout.SpecialStartRow}-{SlotLayout.TotalRows - 1}.");
         }
 
@@ -177,6 +179,18 @@ namespace ValheimSlots
                         "Eat again when this many seconds of a food buff remain.",
                         "Ät igen när så här många sekunder återstår av en matbuff."),
                     new AcceptableValueRange<int>(5, 1200)));
+
+            AchievementsWhenModded = Config.Bind("6 - Cheat flag", "Achievements when modded", false, L.T(
+                "Allow achievements even though the game is modded. Only the modded state is ignored - cheat commands, cheat world modifiers and cheated items still block achievements. Off = normal Valheim behaviour.",
+                "Tillåt prestationer trots att spelet är moddat. Bara moddningen ignoreras - fuskkommandon, fusk-världsinställningar och fuskmarkerade föremål spärrar fortfarande. Av = vanligt Valheim-beteende."));
+            AchievementsWhenModded.SettingChanged += (_, __) =>
+            {
+                ModdedAchievements.LogState();
+                Achievements.m_cheatCheckFrame = -1; // re-evaluate right away
+                Player.m_localPlayer?.Message(MessageHud.MessageType.TopLeft, AchievementsWhenModded.Value
+                    ? L.T("Achievements in modded game: ON", "Prestationer i moddat spel: PÅ")
+                    : L.T("Achievements in modded game: OFF", "Prestationer i moddat spel: AV"));
+            };
 
             AutoClearCheated = Config.Bind("6 - Cheat flag", "Auto clear inventory", true, L.T(
                 "Automatically remove \"summoned through cheating means\" from items in your inventory. Achievements are already disabled in a modded game, so the flag has no function - it only spreads.",
